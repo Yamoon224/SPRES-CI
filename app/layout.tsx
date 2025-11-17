@@ -9,23 +9,26 @@ const geistSans = Geist({ subsets: ["latin"] })
 const geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "SPRES - Solutions de Prestation de Service",
-  description: "Plateforme de recherche d'emploi et de prestation de services",
-    generator: 'v0.app'
+    title: "SPRES GROUP - Solutions de Prestation de Service",
+    description: "Plateforme de recherche d'emploi et de prestation de services",
+    icons: {
+        icon: "/favicon.ico",
+    },
 }
 
+
 export default function RootLayout({
-  children,
+    children,
 }: {
-  children: React.ReactNode
+    children: React.ReactNode
 }) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} bg-background text-foreground`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <LanguageProvider>{children}</LanguageProvider>
-        </ThemeProvider>
-      </body>
-    </html>
-  )
+    return (
+        <html lang="en" suppressHydrationWarning>
+            <body className={`${geistSans.className} bg-background text-foreground`}>
+                <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                    <LanguageProvider>{children}</LanguageProvider>
+                </ThemeProvider>
+            </body>
+        </html>
+    )
 }

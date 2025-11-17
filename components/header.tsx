@@ -43,13 +43,13 @@ export function Header() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
               <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-B0JacvO5fytm8Y9nt1BNo2AJ36X4Oc.jpg"
-                alt="SPRES"
+                src="logo.webp"
+                alt="SPRES GROUP"
                 width={40}
                 height={40}
                 className="object-contain"
               />
-              <span className="font-bold text-xl text-primary hidden sm:inline">SPRES</span>
+              <span className="font-bold text-xl text-primary hidden sm:inline">SPRES GROUP</span>
             </Link>
 
             {/* Desktop Navigation */}
