@@ -7,6 +7,7 @@ import { X, Loader2 } from "lucide-react"
 import { useLanguage } from "./language-provider"
 import { useRouter } from "next/navigation"
 import { useAuth } from "./auth-context"
+import PasswordInput from "./password-input"
 
 interface AuthModalProps {
     mode: "login" | "register"
@@ -142,22 +143,17 @@ export function AuthModal({ mode, isOpen, onClose }: AuthModalProps) {
                         </div>
                     )}
 
-                    <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">{t("auth.password")}</label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleInputChange}
-                            className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                            required
+                    {/* Ici l'utilisation de ton composant PasswordInput */}
+                    <PasswordInput
+                            t={t}
+                            formData={formData}
+                            handleInputChange={handleInputChange}
                         />
-                    </div>
 
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {loading ? (
                             <>
