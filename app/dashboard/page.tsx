@@ -6,6 +6,8 @@ import { Header } from "@/components/header"
 import { useAuth } from "@/components/auth-context"
 import { useLanguage } from "@/components/language-provider"
 import { LayoutDashboard, User, FileText, Briefcase, Calendar, CheckCircle } from 'lucide-react'
+import { toast } from "sonner"
+import CVUploadCard from "@/components/cv-upload-card"
 
 type Tab = "dashboard" | "profile" | "applications"
 
@@ -82,6 +84,7 @@ export default function DashboardPage() {
 
 function DashboardTab() {
     const { t } = useLanguage()
+    const [cvs, setCvs] = useState<any[]>([])
 
     const stats = [
         { label: t("dashboard.stats.applications"), value: "5", icon: FileText, color: "text-blue-500" },
@@ -89,8 +92,33 @@ function DashboardTab() {
         { label: t("dashboard.stats.offers"), value: "12", icon: Briefcase, color: "text-purple-500" },
     ]
 
+    // 🔹 Fetch CVs uploadés
+    useEffect(() => {
+        const fetchCvs = async () => {
+            const storedUser = JSON.parse(localStorage.getItem("auth_user") || "{}")
+            const token = localStorage.getItem("auth_token")
+            const baseURL = process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL ?? "http://localhost"
+
+            try {
+                const res = await fetch(`${baseURL}/api/v1/candidates?user_id=${storedUser.id}`, {
+                    headers: {Authorization: `Bearer ${token}`},
+                })
+
+                if (!res.ok) throw new Error("Impossible de récupérer les CVs")
+                const data = await res.json()
+                setCvs(data.data || []) 
+            } catch (error) {
+                console.error(error)
+                toast.error("Erreur lors de la récupération des CVs")
+            }
+        }
+
+        fetchCvs()
+    }, [])
+
     return (
         <div className="space-y-6">
+            {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {stats.map((stat, index) => {
                     const IconComponent = stat.icon
@@ -113,26 +141,36 @@ function DashboardTab() {
                 })}
             </div>
 
+            {/* CV Uploads */}
             <div className="bg-card border border-border rounded-lg p-6">
-                <h3 className="text-xl font-semibold text-foreground mb-4">Recent Activity</h3>
-                <div className="space-y-4">
-                    <div className="flex items-start gap-3 pb-4 border-b border-border">
-                        <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                        <div>
-                            <p className="font-medium text-foreground">Application Submitted</p>
-                            <p className="text-sm text-muted-foreground">Software Engineer at TechCorp</p>
-                            <p className="text-xs text-muted-foreground mt-1">2 days ago</p>
-                        </div>
+                <h3 className="text-xl font-semibold text-foreground mb-4">CV Uploads</h3>
+                {cvs.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Aucun CV uploadé pour le moment.</p>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {cvs.map((cv, index) => (
+                            <div
+                                key={index}
+                                className="bg-background border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
+                            >
+                                <div className="mb-2">
+                                    <p className="text-foreground font-semibold truncate">{cv.title}</p>
+                                    {cv.description && (
+                                        <p className="text-sm text-muted-foreground mt-1 truncate">{cv.description}</p>
+                                    )}
+                                </div>
+                                <a
+                                    href={cv.file_path}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-2 inline-block px-3 py-1 bg-primary text-white rounded-lg text-sm font-medium text-center hover:bg-primary/90 transition-colors"
+                                >
+                                    Voir le CV
+                                </a>
+                            </div>
+                        ))}
                     </div>
-                    <div className="flex items-start gap-3 pb-4 border-b border-border">
-                        <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                        <div>
-                            <p className="font-medium text-foreground">Interview Scheduled</p>
-                            <p className="text-sm text-muted-foreground">Project Manager at BuildCo</p>
-                            <p className="text-xs text-muted-foreground mt-1">5 days ago</p>
-                        </div>
-                    </div>
-                </div>
+                )}
             </div>
         </div>
     )
@@ -143,19 +181,46 @@ function ProfileTab({ user }: { user: { full_name: string; email: string; phone:
     const [isEditing, setIsEditing] = useState(false)
     const [formData, setFormData] = useState(user)
 
-    const handleSave = () => {
-        // Save profile changes
-        setIsEditing(false)
+    const handleSave = async () => {
+        const storedUser = JSON.parse(localStorage.getItem("auth_user") || "{}")
+        const token = localStorage.getItem("auth_token")
+        const userId = storedUser.id
+
+        const baseURL = process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL ?? 'localhost'
+
+        try {
+            const res = await fetch(baseURL + `/api/v1/users/${userId}`, {
+                method: "PUT",
+                headers: {"Content-Type": "application/json", Authorization: `Bearer ${token}`},
+                body: JSON.stringify(formData),
+            })
+            
+            console.log(res)
+
+            if (!res.ok) {
+                throw new Error("Erreur lors de la mise à jour")
+            }
+
+            const updatedUser = await res.json()
+            localStorage.setItem("auth_user", JSON.stringify(updatedUser))
+            
+            toast.success("Profil mis à jour avec succès 🎉")
+    
+            setIsEditing(false)
+        } catch (error) {
+            toast.error("Une erreur est survenue ❌")
+            console.error(error)
+        }
     }
 
     return (
-        <div className="max-w-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-auto">
             <div className="bg-card border border-border rounded-lg p-6">
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-semibold text-foreground">{t("profile.info")}</h3>
                     <button
                         onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-                        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+                        className="px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors"
                     >
                         {isEditing ? t("profile.save") : t("profile.edit")}
                     </button>
@@ -201,6 +266,11 @@ function ProfileTab({ user }: { user: { full_name: string; email: string; phone:
                         />
                     </div>
                 </div>
+            </div>
+
+            {/* Card Upload CV */}
+            <div className="bg-card border border-border rounded-lg p-6">
+                <CVUploadCard />
             </div>
         </div>
     )
