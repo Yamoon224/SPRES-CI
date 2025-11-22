@@ -12,18 +12,24 @@ import CVUploadCard from "@/components/cv-upload-card"
 type Tab = "dashboard" | "profile" | "applications"
 
 export default function DashboardPage() {
-    const { user, isAuthenticated } = useAuth()
+    const { user, isAuthenticated, mounted } = useAuth()
     const { t } = useLanguage()
     const router = useRouter()
     const [activeTab, setActiveTab] = useState<Tab>("dashboard")
 
     useEffect(() => {
+        console.log("mounted =", mounted)
+        console.log("isAuthenticated =", isAuthenticated)
+        console.log("user =", user)
+
+        if (!mounted) return     // 👈 ne rien faire tant que le provider charge
+    
         if (!isAuthenticated) {
             router.push("/")
         }
-    }, [isAuthenticated, router])
+    }, [mounted, isAuthenticated])
 
-    if (!isAuthenticated || !user) {
+    if (!mounted || !isAuthenticated || !user) {
         return null
     }
 
@@ -88,7 +94,6 @@ function DashboardTab() {
 
     const stats = [
         { label: t("dashboard.stats.applications"), value: "5", icon: FileText, color: "text-blue-500" },
-        { label: t("dashboard.stats.interviews"), value: "2", icon: Calendar, color: "text-green-500" },
         { label: t("dashboard.stats.offers"), value: "12", icon: Briefcase, color: "text-purple-500" },
     ]
 
@@ -119,7 +124,7 @@ function DashboardTab() {
     return (
         <div className="space-y-6">
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {stats.map((stat, index) => {
                     const IconComponent = stat.icon
                     return (
@@ -195,14 +200,12 @@ function ProfileTab({ user }: { user: { full_name: string; email: string; phone:
                 body: JSON.stringify(formData),
             })
             
-            console.log(res)
-
             if (!res.ok) {
                 throw new Error("Erreur lors de la mise à jour")
             }
 
-            const updatedUser = await res.json()
-            localStorage.setItem("auth_user", JSON.stringify(updatedUser))
+            const user = await res.json()
+            localStorage.setItem("auth_user", JSON.stringify(user.data))
             
             toast.success("Profil mis à jour avec succès 🎉")
     
@@ -279,29 +282,9 @@ function ProfileTab({ user }: { user: { full_name: string; email: string; phone:
 function ApplicationsTab() {
     const { t } = useLanguage()
 
-    const applications = [
-        {
-            id: 1,
-            position: "Software Engineer",
-            company: "TechCorp",
-            date: "2025-01-15",
-            status: "pending",
-        },
-        {
-            id: 2,
-            position: "Project Manager",
-            company: "BuildCo",
-            date: "2025-01-12",
-            status: "interview",
-        },
-        {
-            id: 3,
-            position: "Data Analyst",
-            company: "DataHub",
-            date: "2025-01-10",
-            status: "reviewed",
-        },
-    ]
+    const [applications, setApplications] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -319,6 +302,46 @@ function ApplicationsTab() {
                 return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
         }
     }
+
+    useEffect(() => {
+        const fetchApplications = async () => {
+            const storedUser = JSON.parse(localStorage.getItem("auth_user") || "{}")
+            const token = localStorage.getItem("auth_token")
+            const userId = storedUser.id
+
+            const baseURL = process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL ?? "http://localhost"
+
+            try {
+                const res = await fetch(baseURL + `/api/v1/applies?user_id=${userId}`, {
+                    headers: {Authorization: `Bearer ${token}`},
+                })
+
+                if (!res.ok) throw new Error("Failed to load applications")
+
+                const data = await res.json()
+
+                // Cas Laravel: data.data contient la pagination
+                setApplications(data.data || data)
+            } catch (e: any) {
+                setError(e.message)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchApplications()
+    }, [])
+
+    // État de chargement
+    if (loading) return <div className="text-center py-6">{t("loading")}</div>
+
+    // Erreur
+    if (error)
+        return (
+            <div className="text-red-500 text-center py-6">
+                {t("error")} : {error}
+            </div>
+        )
 
     return (
         <div className="bg-card border border-border rounded-lg overflow-hidden">
@@ -340,12 +363,22 @@ function ApplicationsTab() {
                             </th>
                         </tr>
                     </thead>
+
                     <tbody className="divide-y divide-border">
                         {applications.map((app) => (
                             <tr key={app.id} className="hover:bg-muted/50 transition-colors">
-                                <td className="px-6 py-4 text-sm font-medium text-foreground">{app.position}</td>
-                                <td className="px-6 py-4 text-sm text-muted-foreground">{app.company}</td>
-                                <td className="px-6 py-4 text-sm text-muted-foreground">{app.date}</td>
+                                <td className="px-6 py-4 text-sm font-medium text-foreground">
+                                    {app?.job_offer.title ?? "—"}
+                                </td>
+
+                                <td className="px-6 py-4 text-sm text-muted-foreground">
+                                    {app?.company?.name ?? "—"}
+                                </td>
+
+                                <td className="px-6 py-4 text-sm text-muted-foreground">
+                                    {app?.submitted_at?.substring(0, 10)}
+                                </td>
+
                                 <td className="px-6 py-4">
                                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(app.status)}`}>
                                         {t(`applications.${app.status}`)}

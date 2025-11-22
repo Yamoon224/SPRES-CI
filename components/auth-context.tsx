@@ -15,7 +15,9 @@ interface AuthContextType {
     login: (userData: User, token: string) => void
     logout: () => void
     isAuthenticated: boolean
+    mounted: boolean
 }
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -34,6 +36,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setMounted(true)
     }, [])
 
+    useEffect(() => {
+        console.log("📌 MOUNTING AUTH")
+        console.log("auth_user =", localStorage.getItem("auth_user"))
+        console.log("auth_token =", localStorage.getItem("auth_token"))
+    }, [])
+    
+
     // ✅ REMPLACE ICI ta fonction login PAR CETTE VERSION
     const login = (userData: User, token: string) => {
         setUser(userData)
@@ -48,8 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             headers: {"Content-Type": "application/json"},
         })
 
-        console.log(response)
-
         setUser(null)  
         localStorage.removeItem("auth_user")
         localStorage.removeItem("auth_token")
@@ -60,7 +67,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             user,
             login,
             logout,
-            isAuthenticated: mounted && !!user
+            isAuthenticated: !!user,
+            mounted
         }}>
             {children}
         </AuthContext.Provider>

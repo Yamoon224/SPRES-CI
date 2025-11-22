@@ -10,218 +10,24 @@ import { Briefcase, MapPin, DollarSign, Search, ChevronLeft, ChevronRight } from
 
 interface Opportunity {
     id: number
-    position: string
-    company_id: number
-    company_name: string
+    title: string
+    company: {name: string, id: string},
     location: string
-    job_type: string
+    contract_type: string
     salary: string
     description: string
-    requirements: string
+    experience_required: string
     created_at: string
 }
 
-const mockOpportunities: Opportunity[] = [
-    {
-        id: 1,
-        position: "Senior Software Developer",
-        company_id: 1,
-        company_name: "Tech Solutions Inc",
-        location: "Abidjan",
-        job_type: "Full-time",
-        salary: "$2500 - $3500",
-        description: "We are looking for an experienced software developer to join our team.",
-        requirements: "5+ years experience",
-        created_at: "2025-01-01",
-    },
-    {
-        id: 2,
-        position: "Project Manager",
-        company_id: 2,
-        company_name: "Build Pro Services",
-        location: "Yamoussoukro",
-        job_type: "Full-time",
-        salary: "$2000 - $2800",
-        description: "Lead construction and building projects with our experienced team.",
-        requirements: "3+ years project management experience",
-        created_at: "2025-01-02",
-    },
-    {
-        id: 3,
-        position: "Cleaning Supervisor",
-        company_id: 3,
-        company_name: "Clean Space Ltd",
-        location: "Cocody",
-        job_type: "Full-time",
-        salary: "$1200 - $1600",
-        description: "Oversee cleaning and maintenance operations across multiple facilities.",
-        requirements: "2+ years supervisory experience",
-        created_at: "2025-01-03",
-    },
-    {
-        id: 4,
-        position: "Civil Engineer",
-        company_id: 2,
-        company_name: "Build Pro Services",
-        location: "Abidjan",
-        job_type: "Full-time",
-        salary: "$2200 - $3200",
-        description: "Design and oversee construction projects for commercial clients.",
-        requirements: "Engineering degree + 3+ years experience",
-        created_at: "2025-01-04",
-    },
-    {
-        id: 5,
-        position: "Administrative Assistant",
-        company_id: 1,
-        company_name: "Tech Solutions Inc",
-        location: "Plateau",
-        job_type: "Part-time",
-        salary: "$800 - $1200",
-        description: "Provide administrative support to our growing organization.",
-        requirements: "High school diploma, excellent communication skills",
-        created_at: "2025-01-05",
-    },
-    {
-        id: 6,
-        position: "Gardener / Landscaper",
-        company_id: 4,
-        company_name: "Green Space Maintenance",
-        location: "Cocody",
-        job_type: "Full-time",
-        salary: "$900 - $1400",
-        description: "Maintain and beautify outdoor spaces and gardens.",
-        requirements: "Experience in landscaping and plant maintenance",
-        created_at: "2025-01-06",
-    },
-    {
-        id: 7,
-        position: "Data Analyst",
-        company_id: 1,
-        company_name: "Tech Solutions Inc",
-        location: "Abidjan",
-        job_type: "Full-time",
-        salary: "$1800 - $2500",
-        description: "Analyze and interpret data to support business decisions.",
-        requirements: "Statistics background, SQL and Python skills",
-        created_at: "2025-01-07",
-    },
-    {
-        id: 8,
-        position: "Electrician",
-        company_id: 2,
-        company_name: "Build Pro Services",
-        location: "Yopougon",
-        job_type: "Full-time",
-        salary: "$1400 - $2000",
-        description: "Install and maintain electrical systems on construction sites.",
-        requirements: "Electrical certification, 2+ years experience",
-        created_at: "2025-01-08",
-    },
-    {
-        id: 9,
-        position: "HR Specialist",
-        company_id: 5,
-        company_name: "People First Consulting",
-        location: "Abidjan",
-        job_type: "Full-time",
-        salary: "$1600 - $2200",
-        description: "Manage recruitment and employee relations.",
-        requirements: "HR certification, recruitment experience",
-        created_at: "2025-01-09",
-    },
-    {
-        id: 10,
-        position: "Facilities Manager",
-        company_id: 3,
-        company_name: "Clean Space Ltd",
-        location: "Abidjan",
-        job_type: "Full-time",
-        salary: "$1500 - $2000",
-        description: "Manage facility operations and maintenance.",
-        requirements: "Facility management experience",
-        created_at: "2025-01-10",
-    },
-    {
-        id: 11,
-        position: "QA Tester",
-        company_id: 1,
-        company_name: "Tech Solutions Inc",
-        location: "Plateau",
-        job_type: "Full-time",
-        salary: "$1300 - $1800",
-        description: "Test software applications for quality assurance.",
-        requirements: "QA testing experience, attention to detail",
-        created_at: "2025-01-11",
-    },
-    {
-        id: 12,
-        position: "Plumber",
-        company_id: 2,
-        company_name: "Build Pro Services",
-        location: "Cocody",
-        job_type: "Full-time",
-        salary: "$1200 - $1700",
-        description: "Install and repair plumbing systems.",
-        requirements: "Plumbing license, 2+ years experience",
-        created_at: "2025-01-12",
-    },
-    {
-        id: 13,
-        position: "Marketing Manager",
-        company_id: 5,
-        company_name: "People First Consulting",
-        location: "Abidjan",
-        job_type: "Full-time",
-        salary: "$2000 - $2700",
-        description: "Develop and execute marketing strategies.",
-        requirements: "Marketing degree, 3+ years experience",
-        created_at: "2025-01-13",
-    },
-    {
-        id: 14,
-        position: "Maintenance Worker",
-        company_id: 3,
-        company_name: "Clean Space Ltd",
-        location: "Treichville",
-        job_type: "Full-time",
-        salary: "$1000 - $1400",
-        description: "Perform general maintenance and repairs.",
-        requirements: "General maintenance skills",
-        created_at: "2025-01-14",
-    },
-    {
-        id: 15,
-        position: "UI/UX Designer",
-        company_id: 1,
-        company_name: "Tech Solutions Inc",
-        location: "Abidjan",
-        job_type: "Full-time",
-        salary: "$2000 - $3000",
-        description: "Design user interfaces and experiences for applications.",
-        requirements: "Design portfolio, UI/UX tools proficiency",
-        created_at: "2025-01-15",
-    },
-    {
-        id: 16,
-        position: "Carpenter",
-        company_id: 2,
-        company_name: "Build Pro Services",
-        location: "Abidjan",
-        job_type: "Full-time",
-        salary: "$1300 - $1900",
-        description: "Construct and repair wooden structures.",
-        requirements: "Carpentry skills and experience",
-        created_at: "2025-01-16",
-    },
-]
 
 const ITEMS_PER_PAGE = 12
 
 export default function OpportunitiesPage() {
     const { t } = useLanguage()
-    const [opportunities, setOpportunities] = useState<Opportunity[]>(mockOpportunities)
-    const [filteredOpportunities, setFilteredOpportunities] = useState<Opportunity[]>(mockOpportunities)
+    const [opportunities, setOpportunities] = useState<Opportunity[]>([])
+    const [filteredOpportunities, setFilteredOpportunities] = useState<Opportunity[]>([])
+
     const [loading, setLoading] = useState(false)
     const [showAuthModal, setShowAuthModal] = useState(false)
     const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null)
@@ -233,17 +39,50 @@ export default function OpportunitiesPage() {
     const paginatedOpportunities = filteredOpportunities.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
     useEffect(() => {
+        const fetchJobs = async () => {
+            setLoading(true)
+    
+            const baseURL = process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL ?? "http://localhost"
+    
+            try {
+                const res = await fetch(baseURL + "/api/v1/jobs", {
+                    headers: { "User-Agent": "spres-app" },
+                })
+    
+                const json = await res.json()
+    
+                // Chargement des vraies données
+                setOpportunities(json.data)
+                setFilteredOpportunities(json.data)
+            } catch (error) {
+                console.error("Erreur lors du chargement des jobs :", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+    
+        fetchJobs()
+    }, [])
+
+    useEffect(() => {
+        const q = searchQuery.toLowerCase()
+    
         const filtered = opportunities.filter((opp) => {
-            const query = searchQuery.toLowerCase()
+            const position = opp.title?.toLowerCase() ?? ""
+            const company = opp.company.name?.toLowerCase() ?? ""
+            const location = opp.location?.toLowerCase() ?? ""
+            const desc = opp.description?.toLowerCase() ?? ""
+    
             return (
-                opp.position.toLowerCase().includes(query) ||
-                opp.company_name.toLowerCase().includes(query) ||
-                opp.location.toLowerCase().includes(query) ||
-                opp.description.toLowerCase().includes(query)
+                position.includes(q) ||
+                company.includes(q) ||
+                location.includes(q) ||
+                desc.includes(q)
             )
         })
+    
         setFilteredOpportunities(filtered)
-        setCurrentPage(1) // Reset to first page when searching
+        setCurrentPage(1)
     }, [searchQuery, opportunities])
 
     const handleApply = (opportunity: Opportunity) => {
@@ -318,27 +157,27 @@ export default function OpportunitiesPage() {
                                         className="bg-card rounded-lg overflow-hidden border border-border hover:shadow-lg transition-shadow"
                                     >
                                         <div className="p-6">
-                                            <h3 className="text-xl font-bold text-foreground mb-2">{opportunity.position}</h3>
-                                            <p className="text-sm font-medium text-primary mb-4">{opportunity.company_name}</p>
+                                            <h3 className="text-xl font-bold text-foreground mb-2">{opportunity.title}</h3>
+                                            <p className="text-sm font-medium text-primary mb-4">{opportunity.company.name}</p>
 
-                                            <div className="space-y-3 mb-6">
+                                            <div className="space-y-3 mb-3">
                                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                                     <MapPin className="w-4 h-4" />
                                                     <span>{opportunity.location}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                                     <Briefcase className="w-4 h-4" />
-                                                    <span>{opportunity.job_type}</span>
+                                                    <span>{opportunity.contract_type}</span>
                                                 </div>
                                                 {opportunity.salary && (
                                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                                         <DollarSign className="w-4 h-4" />
-                                                        <span>{opportunity.salary}</span>
+                                                        <span>{Number(opportunity.salary).toLocaleString("fr-FR")} FCFA / {opportunity.experience_required} Années d'expériences</span>
                                                     </div>
                                                 )}
                                             </div>
 
-                                            <p className="text-sm text-muted-foreground mb-6 line-clamp-3">{opportunity.description}</p>
+                                            {/* <p className="text-sm text-muted-foreground my-2 line-clamp-3">{opportunity.description}</p> */}
 
                                             <Button onClick={() => handleApply(opportunity)} className="w-full text-white">
                                                 {t("opportunities.apply")}

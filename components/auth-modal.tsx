@@ -65,10 +65,6 @@ export function AuthModal({ mode, isOpen, onClose }: AuthModalProps) {
 
             const data = await response.json()
             login(data.user, data.token)
-            // 🔥 Stockage du token et de l’utilisateur
-            localStorage.setItem("auth_token", data.token)
-            localStorage.setItem("auth_user", JSON.stringify(data.user))
-
 
             // Reset form and close modal on success
             setFormData({ email: "", password: "", name: "", phone: "" })
